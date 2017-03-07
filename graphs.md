@@ -7,7 +7,7 @@ def bfs(gg: Graph, startId: String): BFS_Result = {
   val start = gg.getVertexById(startId)
   val vertices = gg.vertices
   val colorMap = mutable.HashMap.empty[String, String]
-  val distanceMap = mutable.HashMap.empty[String, Int]
+  val distanceMap = mutable.HashMap.empty[String, BigInt]
   val parentMap = mutable.HashMap.empty[String, String]
 
   implicit class RichVertex(vv: Node) {
@@ -17,7 +17,7 @@ def bfs(gg: Graph, startId: String): BFS_Result = {
     }
 
     def distance = distanceMap(vv.id)
-    def distance_=(distance: Int) = distanceMap(vv.id) = distance
+    def distance_=(distance: BigInt) = distanceMap(vv.id) = distance
 
     def parent = parentMap(vv.id)
     def parent_=(parent: String) = parentMap(vv.id) = parent
@@ -51,6 +51,7 @@ def bfs(gg: Graph, startId: String): BFS_Result = {
   }
   BFS_Result(colorMap.toMap, distanceMap.toMap, parentMap.toMap)
 }
+
 ```
 
 Depth First Search
@@ -169,7 +170,7 @@ def mst_Prim(gg: Graph, weightMap: Edge => Int, rootId: String): Seq[Edge] = {
   implicit def node2Id(node: Node): String = node.id
 
   gg.vertices.foreach { vv =>
-    parentMap(vv) = "
+    parentMap(vv) = ""
     keyMap(vv) = Int.MaxValue
   }
   keyMap(rootId) = 0
