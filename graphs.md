@@ -169,7 +169,7 @@ def mst_Prim(gg: Graph, weightMap: Edge => Int, rootId: String): Seq[Edge] = {
   implicit def node2Id(node: Node): String = node.id
 
   gg.vertices.foreach { vv =>
-    parentMap(vv) = ""
+    parentMap(vv) = "
     keyMap(vv) = Int.MaxValue
   }
   keyMap(rootId) = 0
@@ -190,5 +190,44 @@ def mst_Prim(gg: Graph, weightMap: Edge => Int, rootId: String): Seq[Edge] = {
     EdgeImpl(vv, parentMap(vv))
   }.toList
   result
+}
+```
+
+Bellman Ford Single Source Shortest Path
+```Scala
+def bellmanFord(gg: Graph, weightMap: Edge => Int, startId: String): Option[BellmanFord_Result] = {
+  implicit def node2Id(node: Node): String = node.id
+
+  val distanceMap = mutable.HashMap.empty[String, BigInt]
+  val parentMap = mutable.HashMap.empty[String, String]
+
+  def initializeSingleSource(): Unit = {
+    gg.vertices.foreach { vv =>
+      distanceMap(vv) = Int.MaxValue
+    }
+    distanceMap(startId) = 0
+  }
+
+  def relax(u: String, v: String): Unit = {
+    val alternateDistance = distanceMap(u) + weightMap(EdgeImpl(u, v))
+    if (distanceMap(v) > alternateDistance) {
+      distanceMap(v) = alternateDistance
+      parentMap(v) = u
+    }
+  }
+
+  initializeSingleSource()
+  (1 to gg.vertices.length).foreach { ii =>
+    gg.edges.foreach { ee =>
+      relax(ee.from, ee.to)
+    }
+  }
+
+  gg.edges.foreach { ee =>
+    if (distanceMap(ee.to) > distanceMap(ee.from) + weightMap(EdgeImpl(ee.from, ee.to))) {
+      return None
+    }
+  }
+  Some(BellmanFord_Result(distanceMap.toMap, parentMap.toMap))
 }
 ```
