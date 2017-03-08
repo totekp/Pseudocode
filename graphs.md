@@ -232,3 +232,49 @@ def bellmanFord(gg: Graph, weightMap: Edge => Int, startId: String): Option[Bell
   Some(BellmanFord_Result(distanceMap.toMap, parentMap.toMap))
 }
 ```
+
+Floyd-Warshall All Pairs Shortest Paths
+```Scala
+def floydWarshall(gg: Graph, weightMap: Edge => Int): FloydWarshall_Result = {
+  implicit def node2Id(node: Node): String = node.id
+
+  val vertices = gg.vertices.toVector.sortBy(_.id)
+  val n = vertices.length
+  object dd {
+    private val data = Array.fill(n + 1, n, n)(BigInt(Int.MaxValue))
+
+    def apply(k: Int, i: Int, j: Int): BigInt = {
+      data(k)(i)(j)
+    }
+
+    def update(k: Int, i: Int, j: Int, value: BigInt): Unit = {
+      data(k)(i)(j) = value
+    }
+
+    def getData: Array[Array[Array[BigInt]]] = {
+      data
+    }
+
+    def updateKTable(k: Int, weightFn: (Int, Int) => BigInt): Unit = {
+      for {
+        i <- 0 until n
+        j <- 0 until n
+      } {
+        dd(k, i, j) = weightFn(i, j)
+      }
+    }
+  }
+
+  dd.updateKTable(0, (i, j) => {
+    weightMap(EdgeImpl(vertices(i), vertices(j)))
+  })
+
+  for {
+    k <- 1 to n
+  } {
+    dd.updateKTable(k, (i, j) => dd(k - 1, i, j).min(dd(k - 1, i, k - 1) + dd(k - 1, k - 1, j)))
+  }
+
+  FloydWarshall_Result(vertices.map(_.id), dd.getData.map(_.toVector.map(_.toVector)).toVector)
+}
+```
