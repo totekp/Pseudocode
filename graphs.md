@@ -1,3 +1,25 @@
+Graph Implementation
+```Scala
+val weightMap = mutable.HashMap.empty[Edge, Int].withDefaultValue(INF)
+
+val gg = {
+  GraphImpl(
+    "1->2/3,3/8,5/-4;2->4/1,5/7;3->2/4;4->3/-5,1/2;5->4/6"
+      .split(";")
+      .map { entry =>
+        val Array(vv, value) = entry.split("->", 2)
+        val tos = value.split(",").map(_.split("/", 2)).toVector
+        vv -> tos.map { case Array(to, weight) =>
+          weightMap += (EdgeImpl(vv, to) -> weight.toInt)
+          weightMap += (EdgeImpl(vv, vv) -> 0)
+          to
+        }
+      }.toMap
+  )
+}
+```
+
+
 Breadth First Search
 ```Scala
 /**
@@ -25,7 +47,7 @@ def bfs(gg: Graph, startId: String): BFS_Result = {
 
   vertices.foreach { vv =>
     vv.color = "WHITE"
-    vv.distance = Int.MaxValue
+    vv.distance = INF
     vv.parent = ""
   }
 
@@ -171,7 +193,7 @@ def mst_Prim(gg: Graph, weightMap: Edge => Int, rootId: String): Seq[Edge] = {
 
   gg.vertices.foreach { vv =>
     parentMap(vv) = ""
-    keyMap(vv) = Int.MaxValue
+    keyMap(vv) = INF
   }
   keyMap(rootId) = 0
 
@@ -204,7 +226,7 @@ def bellmanFord(gg: Graph, weightMap: Edge => Int, startId: String): Option[Bell
 
   def initializeSingleSource(): Unit = {
     gg.vertices.foreach { vv =>
-      distanceMap(vv) = Int.MaxValue
+      distanceMap(vv) = INF
     }
     distanceMap(startId) = 0
   }
@@ -241,7 +263,7 @@ def floydWarshall(gg: Graph, weightMap: Edge => Int): FloydWarshall_Result = {
   val vertices = gg.vertices.toVector.sortBy(_.id)
   val n = vertices.length
   object dd {
-    private val data = Array.fill(n + 1, n, n)(BigInt(Int.MaxValue))
+    private val data = Array.fill(n + 1, n, n)(BigInt(INF))
 
     def apply(k: Int, i: Int, j: Int): BigInt = {
       data(k)(i)(j)
