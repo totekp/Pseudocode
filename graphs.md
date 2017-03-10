@@ -300,3 +300,44 @@ def floydWarshall(gg: Graph, weightMap: Edge => Int): FloydWarshall_Result = {
   FloydWarshall_Result(vertices.map(_.id), dd.getData.map(_.toVector.map(_.toVector)).toVector)
 }
 ```
+
+Ford-Fulkerson Edmond-Karp Maximum Flow
+```Scala
+def fordFulkerson(gg: Graph, capacities: Edge => Int, s: String, t: String) = {
+  var parentMap = Map.empty[String, String]
+  val residualMap = mutable.HashMap.empty[Edge, Double].withDefaultValue(0)
+  var maxFlow = 0d
+  gg.edges.foreach { ee =>
+    residualMap(ee) = capacities(ee)
+  }
+
+  // Edmond-Karp bfs shortest strategy
+  while({
+    val result = bfs(gg, s, adjPipe = Some {
+      case ee =>
+        if (residualMap(ee) > 0) List(ee) else Nil
+    })
+    parentMap = result.parentMap
+    result.colorMap.get(t).exists(_ != "WHITE")
+  }) {
+    var pathFlow = Double.PositiveInfinity
+    var tTemp = t
+    while (tTemp != s) {
+      val alternateFlow = residualMap(EdgeImpl(parentMap(tTemp), tTemp))
+      pathFlow = pathFlow.min(alternateFlow)
+      tTemp = parentMap(tTemp)
+    }
+    maxFlow += pathFlow
+
+    var v = t
+    while (v != s) {
+      val u = parentMap(v)
+      residualMap(EdgeImpl(u, v)) -= pathFlow
+      residualMap(EdgeImpl(v, u)) += pathFlow
+      v = parentMap(v)
+    }
+
+  }
+  FordFulterson_Result(maxFlow, residualMap.toMap)
+} // end Ford Fulkerson
+ ```
