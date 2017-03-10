@@ -1,24 +1,3 @@
-Graph Implementation
-```Scala
-val weightMap = mutable.HashMap.empty[Edge, Int].withDefaultValue(INF)
-
-val gg = {
-  GraphImpl(
-    "1->2/3,3/8,5/-4;2->4/1,5/7;3->2/4;4->3/-5,1/2;5->4/6"
-      .split(";")
-      .map { entry =>
-        val Array(vv, value) = entry.split("->", 2)
-        val tos = value.split(",").map(_.split("/", 2)).toVector
-        vv -> tos.map { case Array(to, weight) =>
-          weightMap += (EdgeImpl(vv, to) -> weight.toInt)
-          weightMap += (EdgeImpl(vv, vv) -> 0)
-          to
-        }
-      }.toMap
-  )
-}
-```
-
 
 Breadth First Search
 ```Scala
@@ -341,3 +320,42 @@ def fordFulkerson(gg: Graph, capacities: Edge => Int, s: String, t: String) = {
   FordFulterson_Result(maxFlow, residualMap.toMap)
 } // end Ford Fulkerson
  ```
+
+
+Graph Construction
+- Adjacency list string
+gVplnngmM3i9az7BA6oYULBSDQ0YGp7OSQFYQiODg8/lMggWzE25qwDYLgOKYZ3ZpAwkM2vTSS03
+OhY0X0vv55y5dduM6X7BpPZZxVt/0orHdbhbp6esRamasZHJYXwAupvlwledQhpjgwLo6FVBkSWu
+l3yh2uw+amtx0T7v/rf/OFFtp35GeklGIEEdCo+FQt6PuOSuM3shCbB1wCnSvuI6H77mm0ff2B2J
+93KeObTFUPx9pkRjT5ftcx0zVivvggEXTElly/rSjAzpS7kyZ+xsONaCuGypBFvLf+LR4ipIkraH
+hb5W7aWtisZT0akPpKrbqIMoe33n6REc3JQcj6hhwByWtKM+00kKyZeJjj+9Qbf06lGURTY02ZQw
+8TnsKabCp+WZ31x27rcdSjAXoYlHO7IIDA5gNCXu9/uOLU85PLQESGgNIm11aWxfWY/LCF4OrB/f
+qG3UzKoFK+dE/Yuht949WAVyyb8f6t7KO/3coevNN+JQuKo9K8h0VkgRa9czQKNV+odevU1RzRXe
+obF8mwwUiPnhH3MAjO33VKo7jiKQG24Dtvli9Ibi7NDWHrG3scbifRjd2CwYmxevivXjsD7s2Mgl
+crq6EedALrq4CzKMRG+6L2fXm9c9KF/LsLky6qzI2h8Ljyc5uPa7iNCvkmO179S1uz7Uzc65dmx6
+yqRTgia7m4lxJOh+2zpNqSqHxaLnnfNsrDSX6tn39KskX0e3tiDrRis5sN8sq5j9KMdVkUXU53yF
+CW5pldEg1hZm3S9RDXBHPchh9xG2CTIOB9XsfDTh4ZBfMevlfVGfm6++JGezUdAnMSXIFTXx02S2
+kdIFycCr2wfF4SJ++PVC7Hv4sbC2pgu4NrvUWTO7jr3qntE4GyaL0rpncaRhOnEoYC4qQhUK2Nk3
+hmiYQ/C7OLabav/ajRyixS8BQjaxJd4JV/n8lsgrdoyJirEc
+
+- Table
+qKQprksOiGBaYPWZjb61OgskASnuzZBMB/9dCpAKylIc7Rb8zSyxiwZ37TYuxxHAWzR+RqQnEdHQ
+ddfMC9kB4XR7/0/r+yJthNJazGD0G6j8Af2sFWOIPoC9ttpsqZZp+z6wZD/VhIKqX+VcolIOuxBD
+nAtKaE4lf5hzcyuT75dP4EigKBzDhHw1N5mP+Xu4Yj7vKJFcq5M/lO5SrqUNqfVEPbIe7yyXUmi1
+L/Kl5wwJ9cNC/j6Ka1u3JVml1XKmqI81AaH3YR0fDjkI2DhsdAtXKkkaDTytvoREUrFMS8ri/T+a
+znU0P/wGQmNmApoYma/fbj33M6q6zLLkX6Sgplx0VmkWhPcZanEpKTPhLCmhVGZUpRRkY2dVKzRc
+Dgz1/wnaR0UMugwhmJkRoSLY5tocOf/Ev3dIdAZAyoG2VoSr66mqZEEWhgP0vmCbeg1KAVkcUahY
+9sQlSvCwfYFnGmzZsQLgVQEn0nC3H+Ua6etQq0qZtuKaFE6wrPuBWWjaZvhqiIfimXhv8uW26qPC
+g2iC+2sr79XYrfZB64SxYjhK3xp8qu+DLIgczugFNNbVixa1e4+bKzxLEusVLOVsBxxjkfxBdY7s
+feORiziTOZga5ZrUD7hqtphWU8c+WB3fmm159eBgKJdSaP0lz7DBwAfcl488JOBGQ70vjNFVkR97
+d1FnvFJd1NP6GDR3XVgIc5QAXNsGaC0DX/+qJfOoW9Pm0WPc8+Dca1chOo0omb9Bdz1oSKxivM0M
+FRuQW3DE5jO6PXSqR+Nn0g7EkIDEL26WLYVxyrRH8YIkCUA4//mHgmxuARxr1stPEGadetKx2L/A
+5UCYYp8DUmatSwDwh33bDTwcaYSCRd4QmlLDTeAJW9EHF5N9By2pZX+Gy8PqZZhReuYAiHnXv8xr
+H1iOvo7heZs9eL7KoHKDd5zvY1npGBWoybzsQTQAeiIIjjZYN4CeQIR6vK8dz04GXHeG4PIq9Y0g
+EFMQjOZuwFc/W+4BP2XV5ZqZcSoR4gJDixHZfCUUxEglyGEzRXY+XwbKTQAgC0m7eWOOUkSLjC8a
+fYrs2HYruKCgLZdOpahDmetcCTiNSBlZZtvgnIwGax6I1IYB6cyNJKj1IqB0q7tFYOgUIW3oo+8M
+fnW/3kZi3iC/7AdUMUr+MGhrY4/Z0p0+i5mP2L9xLR+hG1dNCRA+SATZhNzM1tKbDkEdCFDof2FK
+aBo7NYgT0CM7I2e5p0KKd3WLNBLdZZ2Z2iWCf/8KBoVwtzREJIEyn9ICrNqffJFVvp/u0OLREJbw
+zrdcSgqLLdhOnPvGjUAe5uqffh3StxK57jwDfZbFRzDVO043XTAoqZyiESISlpWXiVyq8HryU+rH
+ssTzB5TUAnUPIt3cKqe4y0BpEjWZtAnd+81vvf7lr45kp+cfWDinvHnsBKjgiE2a/PnKwBiTlVTM
+mr0e5TkOc213E1l74T4N6cL1P5miboc5WaUWz7ZljO/9v5gilw==
