@@ -324,6 +324,7 @@ def fordFulkerson(gg: Graph, capacities: Edge => Int, s: String, t: String) = {
 
 Graph Construction
 - Adjacency list string
+
 gVplnngmM3i9az7BA6oYULBSDQ0YGp7OSQFYQiODg8/lMggWzE25qwDYLgOKYZ3ZpAwkM2vTSS03
 OhY0X0vv55y5dduM6X7BpPZZxVt/0orHdbhbp6esRamasZHJYXwAupvlwledQhpjgwLo6FVBkSWu
 l3yh2uw+amtx0T7v/rf/OFFtp35GeklGIEEdCo+FQt6PuOSuM3shCbB1wCnSvuI6H77mm0ff2B2J
@@ -339,6 +340,7 @@ kdIFycCr2wfF4SJ++PVC7Hv4sbC2pgu4NrvUWTO7jr3qntE4GyaL0rpncaRhOnEoYC4qQhUK2Nk3
 hmiYQ/C7OLabav/ajRyixS8BQjaxJd4JV/n8lsgrdoyJirEc
 
 - Table
+
 qKQprksOiGBaYPWZjb61OgskASnuzZBMB/9dCpAKylIc7Rb8zSyxiwZ37TYuxxHAWzR+RqQnEdHQ
 ddfMC9kB4XR7/0/r+yJthNJazGD0G6j8Af2sFWOIPoC9ttpsqZZp+z6wZD/VhIKqX+VcolIOuxBD
 nAtKaE4lf5hzcyuT75dP4EigKBzDhHw1N5mP+Xu4Yj7vKJFcq5M/lO5SrqUNqfVEPbIe7yyXUmi1
