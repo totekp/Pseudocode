@@ -320,6 +320,80 @@ def fordFulkerson(gg: Graph, capacities: Edge => Int, s: String, t: String) = {
   FordFulterson_Result(maxFlow, residualMap.toMap)
 } // end Ford Fulkerson
  ```
+ 
+ Minimum Cut
+ ```Scala
+def minCut(gg: Graph, capacities: Edge => Int, s: String, t: String): Seq[Edge] = {
+ val maxFlowResult = fordFulkerson(gg, capacities, s, t)
+ gg.edges.filter { ee =>
+   maxFlowResult.residualMap(ee) == 0 && capacities(ee) > 0
+ }
+} // end Min Cut
+ ```
+ 
+ Vertex Coloring
+ ```Scala
+def vertexColoring(gg: Graph,
+                  _existingColors: Map[String, Int] = Map.empty,
+                  maxSolutions: Option[Int] = Some(1),
+                  maxColors: Option[Int] = None
+                 ): Seq[VertexColoring_Result] = {
+ // Welsh-Powell algorithm
+ val existingColors = _existingColors.withDefaultValue(-1)
+ val vertices = gg.vertices
+ if (vertices.isEmpty) {
+   return Seq(VertexColoring_Result(Map.empty))
+ }
+
+ // Found a solution
+ if (existingColors.size == gg.vertices.size) {
+   return Seq(VertexColoring_Result(existingColors))
+ }
+
+ object remainingVertices {
+   private val data = ArrayBuffer.empty[String]
+
+   def addAll(vs: Seq[String]): Unit = {
+     data.appendAll(vs)
+   }
+
+   def nonEmpty: Boolean = data.nonEmpty
+
+   def dequeue(): String = {
+     val (maxV, index) = data.zipWithIndex.maxBy {
+       case (vv, _) =>
+         val adjVertices = gg.getAdjacentVertices(vv)
+         val degree = adjVertices.length
+         val coloredVertices = adjVertices.map(aa => existingColors(aa.id)).filter(_ != -1)
+         val saturatedDegree = coloredVertices.distinct.length
+         (saturatedDegree, degree, vv)
+     }(Ordering.Tuple3(Ordering.Int, Ordering.Int, Ordering.String))
+     data.remove(index)
+     maxV
+   }
+
+   def contains(v: String): Boolean = {
+     data.contains(v)
+   }
+ }
+
+ val solns = ArrayBuffer.empty[VertexColoring_Result]
+
+ remainingVertices.addAll(gg.vertices.filter(tt => !existingColors.contains(tt.id)).map(_.id))
+ val uu = remainingVertices.dequeue()
+
+ val neighborColors = gg.getAdjacentVertices(uu).map(v => existingColors(v.id)).filter(_ != -1).distinct
+ val allColors = maxColors.map(aa => 0 until aa).getOrElse(gg.vertices.indices)
+ val availableColors = allColors.diff(neighborColors)
+ availableColors.foreach { color =>
+   if (maxSolutions.isEmpty || maxSolutions.exists(_ > solns.length)) {
+     val solns_cur = vertexColoring(gg, existingColors + (uu -> color), maxSolutions = maxSolutions, maxColors = maxColors)
+     solns.appendAll(solns_cur)
+   }
+ }
+ solns.toVector
+}
+```
 
 
 Graph Construction
