@@ -1,58 +1,62 @@
 
 Breadth First Search
 ```Scala
-/**
-  * Distance will be shortest
-  */
-def bfs(gg: Graph, startId: String): BFS_Result = {
-  val start = gg.getVertexById(startId)
-  val vertices = gg.vertices
-  val colorMap = mutable.HashMap.empty[String, String]
-  val distanceMap = mutable.HashMap.empty[String, BigInt]
-  val parentMap = mutable.HashMap.empty[String, String]
+def bfs(gg: Graph, startId: String, adjProcessor: Option[Edge => Seq[Edge]] = None): BFS_Result = {
+ val start = gg.getVertexById(startId)
+ val colorMap = mutable.HashMap.empty[String, String].withDefaultValue("WHITE")
+ val distanceMap = mutable.HashMap.empty[String, BigInt].withDefaultValue(INF)
+ val parentMap = mutable.HashMap.empty[String, String].withDefaultValue("")
 
-  implicit class RichVertex(vv: Node) {
-    def color: String = colorMap(vv.id)
-    def color_=(color: String): Unit = {
-      colorMap(vv.id) = color
-    }
+ implicit class RichVertex(vv: Node) {
+   def color: String = colorMap(vv.id)
 
-    def distance = distanceMap(vv.id)
-    def distance_=(distance: BigInt) = distanceMap(vv.id) = distance
+   def color_=(color: String): Unit = {
+     colorMap(vv.id) = color
+   }
 
-    def parent = parentMap(vv.id)
-    def parent_=(parent: String) = parentMap(vv.id) = parent
-  }
+   def distance = distanceMap(vv.id)
 
-  vertices.foreach { vv =>
-    vv.color = "WHITE"
-    vv.distance = INF
-    vv.parent = ""
-  }
+   def distance_=(distance: BigInt) = distanceMap(vv.id) = distance
 
-  start.color = "GRAY"
-  start.distance = 0
-  start.parent = ""
+   def parent = parentMap(vv.id)
 
-  val qq = mutable.Queue.empty[String]
-  qq.enqueue(start.id)
+   def parent_=(parent: String) = parentMap(vv.id) = parent
+ }
 
-  while(qq.nonEmpty) {
-    val uId = qq.dequeue()
-    val uu = gg.getVertexById(uId)
-    gg.getAdjacentVertices(uu.id).foreach { vv =>
-      if (vv.color == "WHITE") {
-        vv.color = "GRAY"
-        vv.distance = uu.distance + 1
-        vv.parent = uu.id
-        qq.enqueue(vv.id)
-      }
-      uu.color = "BLACK"
-    }
-  }
-  BFS_Result(colorMap.toMap, distanceMap.toMap, parentMap.toMap)
+ start.color = "GRAY"
+ start.distance = 0
+ start.parent = ""
+
+ val qq = mutable.Queue.empty[String]
+ qq.enqueue(start.id)
+
+ while (qq.nonEmpty) {
+   val uId = qq.dequeue()
+   val uu = gg.getVertexById(uId)
+   val adjVertices = {
+     adjProcessor match {
+       case Some(processor) =>
+
+         gg.getAdjacentVertices(uu.id)
+           .flatMap(aa => EdgeImpl(uu.id, aa.id) |> processor)
+           .map(ee => gg.getVertexById(ee.to))
+
+       case _ =>
+         gg.getAdjacentVertices(uu.id)
+     }
+   }
+   adjVertices.foreach { vv =>
+     if (vv.color == "WHITE") {
+       vv.color = "GRAY"
+       vv.distance = uu.distance + 1
+       vv.parent = uu.id
+       qq.enqueue(vv.id)
+     }
+     uu.color = "BLACK"
+   }
+ }
+ BFS_Result(colorMap.toMap, distanceMap.toMap, parentMap.toMap)
 }
-
 ```
 
 Depth First Search
