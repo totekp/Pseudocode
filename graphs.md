@@ -399,6 +399,57 @@ def vertexColoring(gg: Graph,
 }
 ```
 
+Bipartite Matching
+```Scala
+def bipartiteMatching(
+                       matches: Seq[(String, String)],
+                       initialCapacities: Map[(String, String), Int],
+                       superSourceFlow: Int = INF,
+                       superSinkFlow: Int = INF
+                     ): BipartiteMatchingResult = {
+  val superSource = "SuperSource"
+  val superSink = "SuperSink"
+  val edges = matches.map(ee => EdgeImpl(ee._1, ee._2))
+  val sources = matches.map(_._1)
+  val sinks = matches.map(_._2)
+
+  val gg = GraphFactory.createGraphFromEdges[Int](edges)
+    .addParent(superSource, sources)
+    .addChild(superSink, sinks)
+    .addReverseEdges
+
+  def initialCapacity(aa: String, bb: String): Int = {
+    (aa, bb) match {
+      case (`superSource`, _) =>
+        superSourceFlow
+      case (_, `superSink`) =>
+        superSinkFlow
+      case _ =>
+        try {
+          initialCapacities((aa, bb))
+        } catch {
+          case NonFatal(t) =>
+            0
+        }
+    }
+  }
+  val result = fordFulkerson(gg, ee => {
+    initialCapacity(ee.from, ee.to)
+  }, superSource, superSink)
+  def getAssignments(sources: Set[String], sinks: Set[String], initialCapcities: Edge => Int, residualMap: Map[Edge, Double]): Vector[(Edge, Double)] = {
+    residualMap.filter { case (ee, flow) =>
+      flow > 0 &&
+        (sources.contains(ee.to) && sinks.contains(ee.from)) &&
+        initialCapcities(ee.reverse) > 0
+    }.map { case (ee, flow) =>
+      (ee.reverse, flow)
+    }.toVector
+  }
+
+  val assignments = getAssignments(sources.toSet, sinks.toSet, ee => initialCapacities(ee.from, ee.to), result.residualMap)
+  BipartiteMatchingResult(result.maxFlow, assignments)
+}
+```
 
 Graph Construction
 - Adjacency list string
