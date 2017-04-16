@@ -1,61 +1,75 @@
 
 Breadth First Search
 ```Scala
-def bfs(gg: Graph, startId: String, adjProcessor: Option[Edge => Seq[Edge]] = None): BFS_Result = {
- val start = gg.getVertexById(startId)
- val colorMap = mutable.HashMap.empty[String, String].withDefaultValue("WHITE")
- val distanceMap = mutable.HashMap.empty[String, BigInt].withDefaultValue(INF)
- val parentMap = mutable.HashMap.empty[String, String].withDefaultValue("")
+/**
+  * Distance will be shortest
+  */
+def bfs(gg: Graph,
+        startId: String,
+        adjProcessor: Option[Edge => Seq[Edge]] = None,
+        processVertexEarly: Option[Node => Unit] = None,
+        processVertexLate: Option[Node => Unit] = None,
+        processEdge: Option[Edge => Unit] = None
+       ): BFSOutput = {
 
- implicit class RichVertex(vv: Node) {
-   def color: String = colorMap(vv.id)
+  val start = gg.getVertexById(startId)
 
-   def color_=(color: String): Unit = {
-     colorMap(vv.id) = color
-   }
+  // Use external versions for custom parameters
+  val statusMap = mutable.HashMap.empty[String, String].withDefaultValue(UNDISCOVERED)
+  val distanceMap = mutable.HashMap.empty[String, BigInt].withDefaultValue(INF)
+  val parentMap = mutable.HashMap.empty[String, String].withDefaultValue("")
 
-   def distance = distanceMap(vv.id)
+  implicit class RichVertex(vv: Node) {
+    def status: String = statusMap(vv.id)
 
-   def distance_=(distance: BigInt) = distanceMap(vv.id) = distance
+    def status_=(status: String): Unit = {
+      statusMap(vv.id) = status
+    }
 
-   def parent = parentMap(vv.id)
+    def distance = distanceMap(vv.id)
 
-   def parent_=(parent: String) = parentMap(vv.id) = parent
- }
+    def distance_=(distance: BigInt) = distanceMap(vv.id) = distance
 
- start.color = "GRAY"
- start.distance = 0
- start.parent = ""
+    def parent = parentMap(vv.id)
 
- val qq = mutable.Queue.empty[String]
- qq.enqueue(start.id)
+    def parent_=(parent: String) = parentMap(vv.id) = parent
+  }
 
- while (qq.nonEmpty) {
-   val uId = qq.dequeue()
-   val uu = gg.getVertexById(uId)
-   val adjVertices = {
-     adjProcessor match {
-       case Some(processor) =>
+  start.status = DISCOVERED
+  start.distance = 0
 
-         gg.getAdjacentVertices(uu.id)
-           .flatMap(aa => EdgeImpl(uu.id, aa.id) |> processor)
-           .map(ee => gg.getVertexById(ee.to))
+  val qq = mutable.Queue.empty[String]
+  qq.enqueue(start.id)
 
-       case _ =>
-         gg.getAdjacentVertices(uu.id)
-     }
-   }
-   adjVertices.foreach { vv =>
-     if (vv.color == "WHITE") {
-       vv.color = "GRAY"
-       vv.distance = uu.distance + 1
-       vv.parent = uu.id
-       qq.enqueue(vv.id)
-     }
-     uu.color = "BLACK"
-   }
- }
- BFS_Result(colorMap.toMap, distanceMap.toMap, parentMap.toMap)
+  while (qq.nonEmpty) {
+    val uId = qq.dequeue()
+    val uu = gg.getVertexById(uId)
+    processVertexEarly.foreach(_(uu))
+    val adjVertices = {
+      adjProcessor match {
+        case Some(processor) =>
+
+          gg.getAdjacentVertices(uu.id)
+            .flatMap(aa => EdgeImpl(uu.id, aa.id) |> processor)
+            .map(ee => gg.getVertexById(ee.to))
+
+        case _ =>
+          gg.getAdjacentVertices(uu.id)
+      }
+    }
+    adjVertices.foreach { vv =>
+      if (vv.status == UNDISCOVERED) {
+        vv.status = DISCOVERED
+        processEdge.foreach(_(EdgeImpl(uu.id, vv.id)))
+        vv.distance = uu.distance + 1
+        vv.parent = uu.id
+        qq.enqueue(vv.id)
+      }
+      uu.status = PROCESSED
+    }
+    processVertexLate.foreach(_(uu))
+  }
+  BFSOutput(statusMap.toMap, distanceMap.toMap, parentMap.toMap)
 }
 ```
 
