@@ -465,6 +465,51 @@ def bipartiteMatching(
 }
 ```
 
+Articulation Vertices
+```Scala
+def articulationVertices(gg: Graph): ArticulationVerticesOutput = {
+  val discoveryTime  = mutable.HashMap.empty[String, Int].withDefaultValue(Int.MaxValue)
+  val lowTime = mutable.HashMap.empty[String, Int].withDefaultValue(Int.MaxValue)
+  val visited = mutable.HashSet.empty[String]
+  val articulationPoints = mutable.HashSet.empty[String]
+  val parents = mutable.HashMap.empty[String, String].withDefaultValue("")
+  var time = 0
+
+  gg.vertices.map(_.id).foreach { uu =>
+    if (!visited.contains(uu)) {
+      var children = 0
+      visited(uu) = true
+      discoveryTime(uu) = time
+      lowTime(uu) = time
+      time += 1
+      dfs(
+        gg,
+        optStartId = Some(uu),
+        processEdge = Some({edge =>
+          val (uu, vv) = (edge.from, edge.to)
+          if (!visited(vv)) {
+            parents(vv) = uu
+            children += 1
+
+            lowTime(uu) = math.min(lowTime(uu), lowTime(vv))
+
+            if (parents(uu).isEmpty && children > 1) {
+              articulationPoints += uu
+            }
+
+            if (parents(uu).nonEmpty && lowTime(vv) >= discoveryTime(uu)) {
+              articulationPoints += uu
+            }
+          } else if (vv != parents(uu)) {
+            lowTime(uu) = math.min(lowTime(uu), discoveryTime(vv))
+          }
+        })
+      )
+    }
+  }
+  ArticulationVerticesOutput(articulationPoints.toSet)
+}
+ ```
 Graph Construction
 - Adjacency list string
 
