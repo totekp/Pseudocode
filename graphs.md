@@ -473,40 +473,39 @@ def articulationVertices(gg: Graph): ArticulationVerticesOutput = {
   val visited = mutable.HashSet.empty[String]
   val articulationPoints = mutable.HashSet.empty[String]
   val parents = mutable.HashMap.empty[String, String].withDefaultValue("")
+  def children(aa: String, bb: String) = discoveryTime(bb) - discoveryTime(aa)
   var time = 0
 
-  gg.vertices.map(_.id).foreach { uu =>
-    if (!visited.contains(uu)) {
-      var children = 0
+  dfsOnline(
+    gg,
+    processVertexEarly = Some({ uuNode =>
+      val uu = uuNode.id
       visited(uu) = true
       discoveryTime(uu) = time
       lowTime(uu) = time
       time += 1
-      dfs(
-        gg,
-        optStartId = Some(uu),
-        processEdge = Some({edge =>
-          val (uu, vv) = (edge.from, edge.to)
-          if (!visited(vv)) {
-            parents(vv) = uu
-            children += 1
+    }),
+    processEdge = Some({ (recur, edge) =>
+      val (uu, vv) = (edge.from, edge.to)
+      if (!visited(vv)) {
+        parents(vv) = uu
+        // recur
+        recur()
 
-            lowTime(uu) = math.min(lowTime(uu), lowTime(vv))
+        lowTime(uu) = math.min(lowTime(uu), lowTime(vv))
 
-            if (parents(uu).isEmpty && children > 1) {
-              articulationPoints += uu
-            }
+        if (parents(uu).isEmpty && children(uu, vv) > 1) {
+          articulationPoints += uu
+        }
+        if (parents(uu).nonEmpty && lowTime(vv) >= discoveryTime(uu)) {
+          articulationPoints += uu
+        }
+      } else if (vv != parents(uu)) {
+        lowTime(uu) = math.min(lowTime(uu), discoveryTime(vv))
+      }
 
-            if (parents(uu).nonEmpty && lowTime(vv) >= discoveryTime(uu)) {
-              articulationPoints += uu
-            }
-          } else if (vv != parents(uu)) {
-            lowTime(uu) = math.min(lowTime(uu), discoveryTime(vv))
-          }
-        })
-      )
-    }
-  }
+    })
+  )
   ArticulationVerticesOutput(articulationPoints.toSet)
 }
  ```
